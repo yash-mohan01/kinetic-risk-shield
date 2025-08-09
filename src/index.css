@@ -2,104 +2,146 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Design system: HSL variables, gradients, shadows, radii, motion */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Light mode palette */
+    --background: 0 0% 100%; /* #FFFFFF */
+    --foreground: 223 36% 15%; /* soft slate #1E2A47 approx */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 223 36% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 223 36% 15%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 205 81% 21%; /* deep blue #0A3D62 */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 220 14% 84%; /* neutral-300 */
+    --secondary-foreground: 223 36% 15%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 220 14% 94%;
+    --muted-foreground: 220 14% 46%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 174 85% 38%; /* teal highlight */
+    --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 359 100% 64%; /* #FF4D4F */
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --border: 220 14% 90%;
+    --input: 220 14% 90%;
+    --ring: 205 81% 21%;
 
-    --radius: 0.5rem;
+    /* Brand & risk tokens */
+    --gold-500: 46 65% 52%; /* #D4AF37 */
+    --on-gold: 205 81% 21%; /* readable on gold */
+    --teal-900: 180 100% 12%; /* dark teal surface */
 
-    --sidebar-background: 0 0% 98%;
+    --risk-green: hsl(166 100% 38%);
+    --risk-yellow: hsl(46 100% 60%);
+    --risk-red: hsl(359 100% 64%);
 
-    --sidebar-foreground: 240 5.3% 26.1%;
+    /* Radii */
+    --radius: 0.75rem; /* 12px for cards */
+    --radius-btn: 0.5rem; /* 8px for buttons */
 
-    --sidebar-primary: 240 5.9% 10%;
+    /* Shadows */
+    --shadow-soft: 0 10px 20px -5px rgba(0,0,0,0.25);
+    --shadow-soft-light: 0 8px 16px -6px rgba(0,0,0,0.15);
 
-    --sidebar-primary-foreground: 0 0% 98%;
+    /* Gradients */
+    --gradient-gold: linear-gradient(135deg, hsl(var(--gold-500)) 0%, hsl(var(--accent)) 100%);
+    --gradient-app: radial-gradient(1200px 600px at 10% -10%, hsl(var(--accent)/0.12), transparent 60%),
+                    radial-gradient(1000px 500px at 120% 10%, hsl(var(--primary)/0.10), transparent 60%);
 
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Layout */
+    --risk-width: clamp(260px, 20vw, 360px);
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    --background: 180 100% 12%; /* dark teal */
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 180 100% 12%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 180 100% 12%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 46 65% 52%; /* gold accent used as primary on dark */
+    --primary-foreground: 205 81% 21%;
 
-    --secondary: 217.2 32.6% 17.5%;
+    --secondary: 216 28% 17%;
     --secondary-foreground: 210 40% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 216 28% 17%;
+    --muted-foreground: 215 20% 65%;
 
-    --accent: 217.2 32.6% 17.5%;
+    --accent: 174 85% 38%;
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 62% 31%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 216 28% 17%;
+    --input: 216 28% 17%;
+    --ring: 46 65% 52%;
+
+    --gradient-app: radial-gradient(1200px 600px at 10% -10%, hsl(var(--accent)/0.25), transparent 60%),
+                    radial-gradient(1000px 500px at 120% 10%, hsl(var(--primary)/0.25), transparent 60%);
+  }
+
+  @media (max-width: 1279px) {
+    :root { --risk-width: clamp(220px, 28vw, 360px); }
+  }
+  @media (max-width: 767px) {
+    :root { --risk-width: 0px; }
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
+  html { font-family: Inter, ui-sans-serif, system-ui; font-size: 16px; }
+  h1,h2,h3 { font-family: Poppins, Inter, ui-sans-serif, system-ui; }
+  body { @apply bg-background text-foreground; background-image: var(--gradient-app); }
+}
 
-  body {
-    @apply bg-background text-foreground;
-  }
+@layer components {
+  .glass-panel { @apply bg-card/80 backdrop-blur-xl border border-border rounded-lg; box-shadow: var(--shadow-soft-light); }
+  .glass-bar { @apply bg-card/70 backdrop-blur-xl border border-border; }
+  .btn-hero { background: var(--gradient-gold); box-shadow: 0 8px 30px hsl(var(--gold-500)/0.25); }
+  .glass-button { @apply bg-card/60 backdrop-blur-md border border-border hover:bg-card/80; box-shadow: var(--shadow-soft-light); }
+  .boi-logo { width: 28px; height: 28px; border-radius: 9999px; background: radial-gradient(circle at 30% 30%, hsl(var(--primary)), hsl(var(--accent))); border: 2px solid hsl(var(--accent)); box-shadow: inset 0 0 0 2px hsl(var(--background)/0.5); }
+  .live-dot { width: 8px; height: 8px; border-radius: 9999px; background: hsl(var(--accent)); box-shadow: 0 0 0 6px hsl(var(--accent)/0.15); animation: pulse 1.6s ease-out infinite; }
+  .avatar-circle { width: 28px; height: 28px; border-radius: 9999px; background: hsl(var(--muted)); }
+  .input-glass { @apply w-full px-3 py-2 rounded-sm bg-background/60 backdrop-blur-md border border-border outline-none transition; }
+  .input-glass:focus { box-shadow: 0 0 0 2px hsl(var(--accent)/0.4) inset; }
+
+  .indicator-on { @apply bg-accent/15 border border-accent text-accent-foreground; box-shadow: 0 8px 30px hsl(var(--accent)/0.18); }
+  .indicator-off { @apply bg-muted/40 border border-border; }
+
+  .toggle { width: 40px; height: 22px; border-radius: 9999px; position: relative; background: hsl(var(--muted)); transition: all 240ms ease; }
+  .toggle::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 9999px; background: hsl(var(--foreground)); transition: transform 240ms ease; }
+  .toggle.on { background: hsl(var(--accent)/0.8); box-shadow: 0 8px 30px hsl(var(--accent)/0.18); }
+  .toggle.on::after { transform: translateX(18px); }
+
+  .timeline-dot { width: 8px; height: 8px; border-radius: 9999px; background: hsl(var(--accent)); opacity: 0.7; margin-left: 6px; }
+
+  .risk-fab { width: 48px; height: 48px; border-radius: 9999px; background: var(--gradient-gold); color: hsl(var(--on-gold)); display: grid; place-items: center; box-shadow: var(--shadow-soft); }
+
+  .cursor-ring { position: fixed; width: 24px; height: 24px; border-radius: 9999px; border: 2px solid hsl(var(--gold-500)); background: rgba(255,255,255,0.06); pointer-events: none; z-index: 9999; transition: transform 0.08s ease-out, border-color 0.2s; will-change: transform; }
+  .cursor-ring.active { border-color: hsl(var(--accent)); }
+  .cursor-particle { position: fixed; width: 6px; height: 6px; background: hsl(var(--gold-500)); border-radius: 9999px; pointer-events: none; z-index: 9998; opacity: 0.9; will-change: transform, opacity; transition: opacity 0.42s ease-out, transform 0.42s ease-out; }
+}
+
+/* Animations & helpers */
+@layer utilities {
+  .hover-scale { @apply transition-transform duration-200 hover:scale-105; }
+  .story-link { @apply relative inline-block; }
+  .story-link::after { content: ""; position: absolute; width: 100%; transform: scaleX(0); height: 2px; bottom: -2px; left: 0; background: hsl(var(--primary)); transform-origin: bottom right; transition: transform .3s ease-out; }
+  .story-link:hover::after { transform: scaleX(1); transform-origin: bottom left; }
+  .bg-app { background-image: var(--gradient-app); }
 }
