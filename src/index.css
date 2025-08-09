@@ -6,9 +6,9 @@
 
 @layer base {
   :root {
-    /* Light mode palette */
-    --background: 0 0% 100%; /* #FFFFFF */
-    --foreground: 223 36% 15%; /* soft slate #1E2A47 approx */
+    /* Light mode palette — Neon theme */
+    --background: 0 0% 100%;
+    --foreground: 223 36% 15%;
 
     --card: 0 0% 100%;
     --card-foreground: 223 36% 15%;
@@ -16,63 +16,66 @@
     --popover: 0 0% 100%;
     --popover-foreground: 223 36% 15%;
 
-    --primary: 205 81% 21%; /* deep blue #0A3D62 */
+    /* Neon accents */
+    --primary: 200 100% 45%; /* electric cyan */
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 220 14% 84%; /* neutral-300 */
+    --secondary: 220 14% 84%;
     --secondary-foreground: 223 36% 15%;
 
     --muted: 220 14% 94%;
     --muted-foreground: 220 14% 46%;
 
-    --accent: 174 85% 38%; /* teal highlight */
+    --accent: 312 100% 60%; /* neon magenta */
     --accent-foreground: 210 40% 98%;
 
-    --destructive: 359 100% 64%; /* #FF4D4F */
+    --destructive: 359 100% 64%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 220 14% 90%;
     --input: 220 14% 90%;
-    --ring: 205 81% 21%;
+    --ring: 200 100% 45%;
 
     /* Brand & risk tokens */
-    --gold-500: 46 65% 52%; /* #D4AF37 */
-    --on-gold: 205 81% 21%; /* readable on gold */
-    --teal-900: 180 100% 12%; /* dark teal surface */
+    --gold-500: 46 65% 52%;
+    --on-gold: 205 81% 21%;
+    --teal-900: 180 100% 12%;
 
-    --risk-green: hsl(166 100% 38%);
+    --risk-green: hsl(166 100% 48%);
     --risk-yellow: hsl(46 100% 60%);
     --risk-red: hsl(359 100% 64%);
 
     /* Radii */
-    --radius: 0.75rem; /* 12px for cards */
-    --radius-btn: 0.5rem; /* 8px for buttons */
+    --radius: 0.75rem;
+    --radius-btn: 0.5rem;
 
     /* Shadows */
     --shadow-soft: 0 10px 20px -5px rgba(0,0,0,0.25);
     --shadow-soft-light: 0 8px 16px -6px rgba(0,0,0,0.15);
 
-    /* Gradients */
+    /* Gradients — neon glow */
     --gradient-gold: linear-gradient(135deg, hsl(var(--gold-500)) 0%, hsl(var(--accent)) 100%);
-    --gradient-app: radial-gradient(1200px 600px at 10% -10%, hsl(var(--accent)/0.12), transparent 60%),
-                    radial-gradient(1000px 500px at 120% 10%, hsl(var(--primary)/0.10), transparent 60%);
+    --gradient-app: radial-gradient(1000px 500px at 10% -10%, hsl(var(--accent)/0.18), transparent 60%),
+                    radial-gradient(900px 450px at 120% 10%, hsl(var(--primary)/0.20), transparent 60%),
+                    radial-gradient(600px 300px at 50% 120%, hsl(166 100% 50% / 0.12), transparent 60%);
 
     /* Layout */
     --risk-width: clamp(260px, 20vw, 360px);
   }
 
-  .dark {
-    --background: 180 100% 12%; /* dark teal */
+.dark {
+    /* Dark neon */
+    --background: 230 15% 8%;
     --foreground: 210 40% 98%;
 
-    --card: 180 100% 12%;
+    --card: 230 15% 10%;
     --card-foreground: 210 40% 98%;
 
-    --popover: 180 100% 12%;
+    --popover: 230 15% 10%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 46 65% 52%; /* gold accent used as primary on dark */
-    --primary-foreground: 205 81% 21%;
+    --primary: 200 100% 55%;
+    --primary-foreground: 230 15% 8%;
 
     --secondary: 216 28% 17%;
     --secondary-foreground: 210 40% 98%;
@@ -80,18 +83,19 @@
     --muted: 216 28% 17%;
     --muted-foreground: 215 20% 65%;
 
-    --accent: 174 85% 38%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 312 100% 64%;
+    --accent-foreground: 230 15% 8%;
 
     --destructive: 0 62% 31%;
     --destructive-foreground: 210 40% 98%;
 
     --border: 216 28% 17%;
     --input: 216 28% 17%;
-    --ring: 46 65% 52%;
+    --ring: 200 100% 55%;
 
-    --gradient-app: radial-gradient(1200px 600px at 10% -10%, hsl(var(--accent)/0.25), transparent 60%),
-                    radial-gradient(1000px 500px at 120% 10%, hsl(var(--primary)/0.25), transparent 60%);
+    --gradient-app: radial-gradient(1000px 500px at 10% -10%, hsl(var(--accent)/0.30), transparent 60%),
+                    radial-gradient(900px 450px at 120% 10%, hsl(var(--primary)/0.35), transparent 60%),
+                    radial-gradient(600px 300px at 50% 120%, hsl(166 100% 50% / 0.18), transparent 60%);
   }
 
   @media (max-width: 1279px) {

@@ -2,6 +2,8 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { toast } from "@/hooks/use-toast";
 import {
   Activity,
@@ -15,8 +17,12 @@ import {
   Wallet,
   Send,
   ReceiptText,
-  LogIn
+  LogIn,
+  User,
+  LogOut,
+  PlusCircle
 } from "lucide-react";
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip as ReTooltip } from "recharts";
 
 // Design system helpers
 const easePrimary = (t: number) => {
@@ -420,7 +426,15 @@ const CustomCursor: React.FC = () => {
 };
 
 // Top navigation bar
-const TopNav: React.FC<{ page: string; setPage: (p: string) => void; balance: number }> = ({ page, setPage, balance }) => {
+const TopNav: React.FC<{
+  page: string;
+  setPage: (p: string) => void;
+  balance: number;
+  notifications: { id: string; title: string; description?: string; read: boolean; at: number }[];
+  unreadCount: number;
+  onMarkAllRead: () => void;
+  onLogout: () => void;
+}> = ({ page, setPage, balance, notifications, unreadCount, onMarkAllRead, onLogout }) => {
   return (
     <div className="sticky top-4 z-40 mx-5">
       <div className="glass-bar rounded-lg px-4 py-3 flex items-center justify-between shadow-soft">
@@ -447,11 +461,46 @@ const TopNav: React.FC<{ page: string; setPage: (p: string) => void; balance: nu
             ))}
           </nav>
           <div className="text-lg font-semibold">₹ {balance.toLocaleString()}</div>
-          <button className="relative">
-            <Bell className="h-5 w-5" aria-label="Notifications" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-primary" aria-hidden />
-          </button>
-          <div className="avatar-circle" role="img" aria-label="Profile" />
+
+          <Popover>
+            <PopoverTrigger asChild>
+              <button className="relative" aria-label="Open notifications">
+                <Bell className="h-5 w-5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-primary" aria-hidden />
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-sm font-medium">Notifications</div>
+                <Button variant="secondary" size="sm" onClick={onMarkAllRead} disabled={unreadCount === 0}>Mark all read</Button>
+              </div>
+              <div className="space-y-2 max-h-64 overflow-auto">
+                {notifications.length === 0 && (
+                  <div className="text-sm text-muted-foreground">No notifications</div>
+                )}
+                {notifications.map((n) => (
+                  <div key={n.id} className={`p-2 rounded-md border ${n.read ? "opacity-70" : ""}`}>
+                    <div className="text-sm font-medium">{n.title}</div>
+                    {n.description && <div className="text-xs text-muted-foreground">{n.description}</div>}
+                  </div>
+                ))}
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="avatar-circle hover-scale" aria-label="Profile menu" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuLabel className="text-sm">Account</DropdownMenuLabel>
+              <DropdownMenuItem onClick={() => setPage("profile")}> <User className="mr-2 h-4 w-4" /> Profile</DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={onLogout}> <LogOut className="mr-2 h-4 w-4" /> Logout</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
         <div className="md:hidden">
           <SettingsIcon className="h-5 w-5" />
@@ -488,21 +537,38 @@ const LoginPage: React.FC<{ onLogin: () => void }> = ({ onLogin }) => {
   );
 };
 
-const HomePage: React.FC<{ setPage: (p: string) => void }> = ({ setPage }) => {
+const HomePage: React.FC<{ setPage: (p: string) => void; balance: number; history: { date: string; balance: number }[]; safetyScore: number; }> = ({ setPage, balance, history, safetyScore }) => {
   return (
     <div className="space-y-6 animate-enter">
       <Card className="glass-panel p-6">
         <div className="flex items-center justify-between">
           <div>
             <div className="text-sm text-muted-foreground">Current Balance</div>
-            <div className="text-3xl font-semibold">₹ 2,54,220.33</div>
+            <div className="text-3xl font-semibold">₹ {balance.toLocaleString()}</div>
           </div>
-          <Sparkline data={[]} />
+          <div className="text-right">
+            <div className="text-sm text-muted-foreground">Safety Score</div>
+            <div className="text-3xl font-semibold" aria-label={`Safety score ${safetyScore}`}>{safetyScore}</div>
+          </div>
         </div>
-        <div className="mt-4 flex gap-3">
-          <Button variant="glass" onClick={() => setPage("payments")}><Send /> Transfer</Button>
-          <Button variant="glass" onClick={() => setPage("payments")}><Wallet /> Pay Bill</Button>
-          <Button variant="glass" onClick={() => setPage("passbook")}><ReceiptText /> Passbook</Button>
+        <div className="mt-6" aria-label="Balance to date chart">
+          <div className="h-56 w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={history} margin={{ left: 12, right: 12, top: 10, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" tickFormatter={(v) => `₹ ${Math.round(v/1000)}k`} />
+                <ReTooltip contentStyle={{ background: "hsl(var(--card))", border: "1px solid hsl(var(--border))" }} formatter={(v: number) => [`₹ ${v.toLocaleString()}`, "Balance"]} />
+                <Line type="monotone" dataKey="balance" stroke="hsl(var(--accent))" strokeWidth={2} dot={false} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <Button variant="glass" onClick={() => setPage("payments")}><Send className="mr-2 h-4 w-4" /> Transfer</Button>
+          <Button variant="glass" onClick={() => setPage("payments")}><Wallet className="mr-2 h-4 w-4" /> Pay Bill</Button>
+          <Button variant="glass" onClick={() => setPage("passbook")}><ReceiptText className="mr-2 h-4 w-4" /> Passbook</Button>
+          <Button variant="glass" onClick={() => setPage("add-money")}><PlusCircle className="mr-2 h-4 w-4" /> Add Money</Button>
         </div>
       </Card>
       <Card className="glass-panel p-6">
@@ -527,13 +593,14 @@ const HomePage: React.FC<{ setPage: (p: string) => void }> = ({ setPage }) => {
   );
 };
 
-const PaymentsPage: React.FC = () => {
+const PaymentsPage: React.FC<{ onTransfer: (amount: number) => void }> = ({ onTransfer }) => {
   const [amount, setAmount] = useState(0);
   const submit = () => {
     if (amount > riskConfig.thresholds.largeTransfer) {
       bus.emit("LARGE_TRANSFER", { amount });
     }
     toast({ title: "Transfer submitted", description: `₹ ${amount.toLocaleString()} scheduled.` });
+    onTransfer(amount);
   };
   return (
     <Card className="glass-panel p-6 animate-enter">
@@ -580,21 +647,82 @@ const PassbookPage: React.FC = () => {
   );
 };
 
-const SettingsPage: React.FC<{ toggle: (k: IndicatorKey, on?: boolean) => void }> = ({ toggle }) => {
-  const [vpn, setVpn] = useState(false);
-  const [device, setDevice] = useState(false);
+// Add Money page
+const AddMoneyPage: React.FC<{ onAdd: (amount: number) => void }> = ({ onAdd }) => {
+  const [amount, setAmount] = useState(0);
+  const submit = () => {
+    if (amount <= 0) return toast({ title: "Enter a valid amount" });
+    onAdd(amount);
+    toast({ title: "Money added", description: `₹ ${amount.toLocaleString()} credited.` });
+  };
   return (
     <Card className="glass-panel p-6 animate-enter">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2"><Globe className="h-4 w-4" /><span>VPN/Proxy</span></div>
-          <button className={`toggle ${vpn ? "on" : "off"}`} onClick={() => { const n = !vpn; setVpn(n); toggle("VPN", n); }} aria-pressed={vpn} aria-label="Toggle VPN" />
+      <div className="grid md:grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm mb-1">Amount (₹)</label>
+          <input className="input-glass" placeholder="0" type="number" onChange={(e) => setAmount(parseFloat(e.target.value || "0"))} />
         </div>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2"><Smartphone className="h-4 w-4" /><span>Register new device</span></div>
-          <button className={`toggle ${device ? "on" : "off"}`} onClick={() => { const n = !device; setDevice(n); toggle("DEVICE_CHANGE", n); }} aria-pressed={device} aria-label="Toggle device" />
+        <div>
+          <label className="block text-sm mb-1">Note</label>
+          <input className="input-glass" placeholder="Optional note" />
         </div>
       </div>
+      <div className="mt-4 flex gap-3">
+        <Button variant="hero" onClick={submit}><PlusCircle className="mr-2 h-4 w-4" /> Add</Button>
+      </div>
+    </Card>
+  );
+};
+
+// Profile page
+const ProfilePage: React.FC<{ onLogout: () => void }> = ({ onLogout }) => {
+  return (
+    <Card className="glass-panel p-6 animate-enter">
+      <div className="flex items-center gap-4">
+        <div className="avatar-circle" aria-hidden />
+        <div>
+          <div className="text-lg font-semibold">John Doe</div>
+          <div className="text-sm text-muted-foreground">john.doe@bankofindia.demo</div>
+        </div>
+      </div>
+      <div className="mt-6">
+        <Button variant="destructive" onClick={onLogout}><LogOut className="mr-2 h-4 w-4" /> Logout</Button>
+      </div>
+    </Card>
+  );
+};
+
+const SettingsPage: React.FC<{
+  safety: Record<IndicatorKey, boolean>;
+  setSafety: (k: IndicatorKey, on: boolean) => void;
+  safetyScore: number;
+  toggle: (k: IndicatorKey, on?: boolean) => void;
+}> = ({ safety, setSafety, safetyScore, toggle }) => {
+  const items: { k: IndicatorKey; label: string; icon: React.ElementType }[] = [
+    { k: "SIM_SWAP", label: "SIM Swap", icon: ShieldAlert },
+    { k: "VPN", label: "VPN/Proxy", icon: Globe },
+    { k: "DEVICE_CHANGE", label: "Device Change", icon: Smartphone },
+    { k: "LOCATION_MISMATCH", label: "Location Mismatch", icon: MapPin },
+    { k: "TYPING_ANOMALY", label: "Typing Anomalies", icon: Activity },
+  ];
+  return (
+    <Card className="glass-panel p-6 animate-enter">
+      <div className="mb-4 flex items-end justify-between">
+        <div>
+          <div className="text-sm text-muted-foreground">Safety Score</div>
+          <div className="text-3xl font-semibold" aria-label={`Safety score ${safetyScore}`}>{safetyScore}</div>
+        </div>
+        <div className="text-xs text-muted-foreground">Disable metrics to reduce safety</div>
+      </div>
+      <div className="space-y-3">
+        {items.map(({ k, label, icon: Icon }) => (
+          <div key={k} className="flex items-center justify-between">
+            <div className="flex items-center gap-2"><Icon className="h-4 w-4" /><span>{label}</span></div>
+            <button className={`toggle ${safety[k] ? "on" : "off"}`} onClick={() => setSafety(k, !safety[k])} aria-pressed={safety[k]} aria-label={`Toggle ${label}`} />
+          </div>
+        ))}
+      </div>
+      <div className="mt-6 text-xs text-muted-foreground">Note: Risk indicators remain live independent of safety preferences.</div>
     </Card>
   );
 };
@@ -623,7 +751,35 @@ const MobileRiskWidget: React.FC<{ score: number }> = ({ score }) => {
 const PageShell: React.FC = () => {
   const { score, history, indicators, toggleIndicator, reducedMotion } = useRiskEngine();
   const [page, setPage] = useState<string>("login");
-  const [balance] = useState(254220.33);
+
+  // Account state
+  const [balance, setBalance] = useState(254220.33);
+  const [balanceHistory, setBalanceHistory] = useState<{ date: string; balance: number }[]>([
+    { date: "Jan", balance: 210000 },
+    { date: "Feb", balance: 222000 },
+    { date: "Mar", balance: 230500 },
+    { date: "Apr", balance: 240000 },
+    { date: "May", balance: 245500 },
+    { date: "Jun", balance: 252000 },
+    { date: "Jul", balance: 254220 },
+  ]);
+
+  const credit = (amt: number) => {
+    setBalance((b) => b + amt);
+    setBalanceHistory((h) => [...h, { date: `Now`, balance: Math.round((h[h.length - 1]?.balance ?? balance) + amt) }]);
+    addNotification({ title: "Deposit received", description: `₹ ${amt.toLocaleString()} added` });
+    setPage("home");
+  };
+
+  // Notifications
+  const [notifications, setNotifications] = useState<{
+    id: string; title: string; description?: string; read: boolean; at: number;
+  }[]>([]);
+  const addNotification = (n: { title: string; description?: string }) => {
+    setNotifications((list) => [{ id: crypto.randomUUID(), title: n.title, description: n.description, read: false, at: Date.now() }, ...list].slice(0, 20));
+  };
+  const unreadCount = notifications.filter((n) => !n.read).length;
+  const markAllRead = () => setNotifications((list) => list.map((n) => ({ ...n, read: true })));
 
   useEffect(() => {
     // Demo choreography: small simulated anomalies on load
@@ -633,6 +789,18 @@ const PageShell: React.FC = () => {
   }, []);
 
   const onLogin = () => setPage("home");
+  const onLogout = () => { toast({ title: "Logged out" }); setPage("login"); };
+
+  // Safety preferences
+  const [safety, setSafetyState] = useState<Record<IndicatorKey, boolean>>({
+    SIM_SWAP: true,
+    VPN: true,
+    DEVICE_CHANGE: true,
+    LOCATION_MISMATCH: true,
+    TYPING_ANOMALY: true,
+  });
+  const setSafety = (k: IndicatorKey, on: boolean) => setSafetyState((s) => ({ ...s, [k]: on }));
+  const safetyScore = Math.round((Object.values(safety).filter(Boolean).length / Object.keys(safety).length) * 100);
 
   // Accessibility: announce risk score
   useEffect(() => {
@@ -646,13 +814,23 @@ const PageShell: React.FC = () => {
       <RiskPanel score={score} history={history} indicators={indicators as any} reducedMotion={reducedMotion} />
       <MobileRiskWidget score={score} />
       <div className="ml-0 md:ml-[var(--risk-width)] min-h-screen">
-        <TopNav page={page} setPage={setPage} balance={balance} />
-        <main className="px-5 pb-10 space-y-6">
+        <TopNav
+          page={page}
+          setPage={setPage}
+          balance={balance}
+          notifications={notifications}
+          unreadCount={unreadCount}
+          onMarkAllRead={markAllRead}
+          onLogout={onLogout}
+        />
+        <main className="px-5 pb-10 space-y-6 mt-8">
           {page === "login" && <LoginPage onLogin={onLogin} />}
-          {page === "home" && <HomePage setPage={setPage} />}
-          {page === "payments" && <PaymentsPage />}
+          {page === "home" && <HomePage setPage={setPage} balance={balance} history={balanceHistory} safetyScore={safetyScore} />}
+          {page === "payments" && <PaymentsPage onTransfer={(amt) => addNotification({ title: "Transfer scheduled", description: `₹ ${amt.toLocaleString()}` })} />}
           {page === "passbook" && <PassbookPage />}
-          {page === "settings" && <SettingsPage toggle={toggleIndicator as any} />}
+          {page === "settings" && <SettingsPage safety={safety} setSafety={setSafety} safetyScore={safetyScore} toggle={toggleIndicator as any} />}
+          {page === "add-money" && <AddMoneyPage onAdd={credit} />}
+          {page === "profile" && <ProfilePage onLogout={onLogout} />}
         </main>
       </div>
       <div id="sr-risk" className="sr-only" role="status" aria-live="polite" aria-atomic="true" />
